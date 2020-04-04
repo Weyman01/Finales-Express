@@ -3,8 +3,7 @@ var mongoose = require('mongoose');
 var modelSchema = mongoose.Schema({
     flavor: {
         type: String,
-        minlength: [5, "El sabor es debe tener al menos 5 caracteres"],
-        maxlength: [22, "El sabor que ingreso es demasiado largo"]
+        enum: ["Chocolate", "Vainilla", "Fresa"]
     },
     description: {
         type: String,
@@ -20,6 +19,9 @@ var modelSchema = mongoose.Schema({
     picture: {
         type: String,
         required: true
+    },
+    user:{
+        type: String
     }
 })
 

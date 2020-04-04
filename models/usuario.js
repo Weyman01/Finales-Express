@@ -3,8 +3,9 @@ var mongoose = require('mongoose');
 var modelSchema = mongoose.Schema({
     username: {
         type: String,
-        minlength: [6, "Ingrese un número de usuario de minimo 6 caracteres"],
-        maxlength: [14, "Núm de caracteres max: 14"]
+        minlength: [4, "Ingrese un número de usuario de minimo 4 caracteres"],
+        maxlength: [14, "Núm de caracteres max: 14"],
+        unique: [true, "Este nombre de usuario ya ha sido registrado"]
     },
     password: {
         type: String
@@ -12,6 +13,10 @@ var modelSchema = mongoose.Schema({
     email: {
         type: String,
         required: [true, "El correo electronico es un campo obligatorio c:"]
+    },
+    type: {
+        type: String,
+        enum: ["Administrador", "Usuario Normal"]
     }
 })
 

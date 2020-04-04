@@ -334,4 +334,3 @@ function indexLogin(_alert, _color, req, res) {
 }
 
 module.exports = router;
-

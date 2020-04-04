@@ -20,6 +20,9 @@ var modelSchema = mongoose.Schema({
     type: {
         type: String,
         enum: ["Alumno zombie", "Profesor zombie"]
+    },
+    user:{
+        type: String
     }
 });
 

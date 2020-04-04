@@ -10,27 +10,60 @@ const saltRounds = 10;
 
 //Zombies
 
-router.get('/zombies', async(req,res) => {
-    Zombie.find().exec((error,zombies) => {
-        if(!error)
-        {
-            res.status(200).json(zombies);
-        }
-        else
-        {
-            res.status(500).json(error);
-        }
-    });
+router.get('/zombies/:nombre', async(req,res) => {
+    if((req.params.nombre) !== undefined){
+        await Usuario.findOne({username: req.params.nombre}).exec((error,admin) => {
+            if(!error)
+            {
+                if(admin.type == 'Administrador'){
+                    Zombie.find().exec((error,zombies) => {
+                        if(!error)
+                        {
+                            res.status(200).json(zombies);
+                        }
+                        else
+                        {
+                            res.status(500).json(error);
+                            console.log(req.body.nombre);
+                        }
+                    });
+                }
+                else{
+                    Zombie.find({user: req.params.nombre}).exec((error,zombies) => {
+                        if(!error)
+                        {
+                            res.status(200).json(zombies);
+                        }
+                        else
+                        {
+                            res.status(500).json(error);
+                            console.log(req.body.nombre);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                res.status(500).json(error);
+                console.log(req.body.nombre);
+            }
+        });
+        
+    }
+    else{
+        console.log('tu wea no sirve :v');
+    }
 });
 
 //Add
 
-router.post('/zombies/new', function(req, res) {
+router.post('/zombies/new', async function(req, res) {
     var data = req.body;
     var nuevoZombie = new Zombie({
         name: data.name,
         email: data.email,
-        type: data.type
+        type: data.type,
+        user: data.user
     });
     var json = [];
     var id = 0;
@@ -39,9 +72,8 @@ router.post('/zombies/new', function(req, res) {
         json.push({ "mensaje": "No has llenado todos los datos, intenta de nuevo.", "id": id });
         res.status(500).json({ mensajeError: json });
     } else {
-        nuevoZombie.save(function(error) {
+        await nuevoZombie.save(function(error) {
             if (error) {
-
                 if (error.errors.name) {
                     id++;
                     json.push({ "mensaje": error.errors.name.message, "id": id });
@@ -115,11 +147,111 @@ function listadoZombies(_alert, _color, req, res) {
 
 //Cerebros
 
-router.get('/cerebros', async(req,res) => {
-    Cerebro.find().exec((error,cerebros) => {
+router.get('/cerebros/:nombre', async(req,res) => {
+    if((req.params.nombre) !== undefined){
+        await Usuario.findOne({username: req.params.nombre}).exec((error,admin) => {
+            if(!error)
+            {
+                if(admin.type == 'Administrador'){
+                    Cerebro.find().exec((error,cerebros) => {
+                        if(!error)
+                        {
+                            res.status(200).json(cerebros);
+                        }
+                        else
+                        {
+                            res.status(500).json(error);
+                            console.log(req.body.nombre);
+                        }
+                    });
+                }
+                else{
+                    Cerebro.find({user: req.params.nombre}).exec((error,cerebros) => {
+                        if(!error)
+                        {
+                            res.status(200).json(cerebros);
+                        }
+                        else
+                        {
+                            res.status(500).json(error);
+                            console.log(req.body.nombre);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                res.status(500).json(error);
+                console.log(req.body.nombre);
+            }
+        });
+        
+    }
+    else{
+        console.log('tu wea no sirve :v');
+    }
+});
+//contar Sabores
+router.get('/Chocolate', async(req,res) => {
+        await Cerebro.find({flavor: 'Chocolate'}).count().exec((error,sabores) => {
+            if(!error)
+            {
+                console.log(sabores);
+                res.status(200).json(sabores);
+            }
+            else
+            {
+                res.status(500).json(error);
+            }
+        });
+});
+router.get('/Vainilla', async(req,res) => {
+    await Cerebro.find({flavor: 'Vainilla'}).count().exec((error,sabores) => {
         if(!error)
         {
-            res.status(200).json(cerebros);
+            console.log(sabores);
+            res.status(200).json(sabores);
+        }
+        else
+        {
+            res.status(500).json(error);
+        }
+    });
+});
+router.get('/Fresa', async(req,res) => {
+    await Cerebro.find({flavor: 'Fresa'}).count().exec((error,sabores) => {
+        if(!error)
+        {
+            console.log(sabores);
+            res.status(200).json(sabores);
+        }
+        else
+        {
+            res.status(500).json(error);
+        }
+    });
+});
+
+//contar cerebros-usuarios
+router.get('/cerebrosU/:nombre', async(req,res) => {
+    await Cerebro.find({user: req.params.nombre}).count().exec((error,cUsuarios) => {
+        if(!error)
+        {
+            console.log(cUsuarios);
+            res.status(200).json(cUsuarios);
+        }
+        else
+        {
+            res.status(500).json(error);
+        }
+    });
+});
+router.get('/cerebrosRes', async(req,res) => {
+    await Cerebro.find().count().exec((error,sabores) => {
+        if(!error)
+        {
+            console.log(sabores);
+            res.status(200).json(sabores);
         }
         else
         {
@@ -130,14 +262,15 @@ router.get('/cerebros', async(req,res) => {
 
 //Add
 
-router.post('/cerebros/new', function(req, res) {
+router.post('/cerebros/new', async function(req, res) {
     var cerebro = req;
     var data = req.body;
     var nuevoCerebro = new Cerebro({
         flavor: data.flavor,
         description: data.description,
         iq: data.iq,
-        picture: data.picture
+        picture: data.picture,
+        user: data.user
     });
     var json = [];
     var id = 0;
@@ -233,7 +366,7 @@ function listadoCerebros(_alert, _color, req, res) {
 
 //Login
 
-router.post('/users/login', function(req, res) {
+router.post('/users/login', async function(req, res) {
     var data = req.body;
     var usuario = new Usuario({
         username: data.username,
@@ -253,7 +386,8 @@ router.post('/users/login', function(req, res) {
             {
                 bcrypt.compare(usuario.password, _usuario.password, function(error, result) {
                     if(result){
-                      res.status(200).json({mensajeError:'', mensajeExito: 'success'});
+                        console.log(usuario.type);
+                      res.status(200).json({mensajeError:'', mensajeExito: 'sucess'});
                     } else {
                       res.status(500).json({mensajeError:'Contraseña incorrecta', mensajeExito: ''});
                     }
@@ -267,21 +401,49 @@ router.post('/users/login', function(req, res) {
     });
 });
 
+router.get('/users/:nombre', async function(req,res){
+    if((req.params.nombre) !== undefined){
+        var F ;
+        await Usuario.findOne({username: req.params.nombre}).exec((error,admin) => {
+            if(!error)
+            {
+                if(admin.type == 'Administrador'){
+                    F= true;
+                }
+                else{
+                    F=false;
+                }
+                res.status(200).json(admin);
+            }
+            else
+            {
+                res.status(500).json(error);
+                console.log(req.body.nombre);
+            }
+        });
+    }
+    else{
+        console.log('tu wea no sirve :v');
+    }
+
+});
+
 //Register
 
-router.post('/users/new', function(req, res) {
+router.post('/users/new', async function(req, res) {
     var user = req;
     var data = req.body;
     bcrypt.hash(data.password, saltRounds, function (err,   hash) {
         var nuevoUser = new Usuario({
             username: data.username,
             password: hash,
-            email: data.email
+            email: data.email,
+            type: data.type
         });
         console.log(nuevoUser);
         var json = [];
         var id = 0;
-        if (nuevoUser.username == undefined || nuevoUser.password == undefined || nuevoUser.username == "" || nuevoUser.password == "") {
+        if (nuevoUser.username == undefined || nuevoUser.password == undefined || nuevoUser.username == "" || nuevoUser.password == "" || nuevoUser.type == "" || nuevoUser.type == undefined || nuevoUser.email == "" || nuevoUser.email == undefined) {
             id++;
             json.push({ "mensaje": "No has llenado todos los datos, intenta de nuevo.", "id": id });
             res.status(500).json({ mensajeError: json, mensajeExito:''});
@@ -289,7 +451,6 @@ router.post('/users/new', function(req, res) {
         } else {
             nuevoUser.save(function(error) {
                 if (error) {
-    
                     if (error.errors.username) {
                         id++;
                         json.push({ "mensaje": error.errors.username.message, "id": id });
@@ -302,6 +463,10 @@ router.post('/users/new', function(req, res) {
                         id++;
                         json.push({ "mensaje": error.errors.email.message, "id": id });
                     }
+                    if (error.errors.type) {
+                        id++;
+                        json.push({ "mensaje": error.errors.type.message, "id": id });
+                    }
                     res.status(500).json({ mensajeError: json, mensajeExito:''});
                 } else {
                     res.status(200).json({ mensajeError: "", mensajeExito:'Usuario registrado correctamente'});
@@ -311,6 +476,10 @@ router.post('/users/new', function(req, res) {
     });
     
 });
+
+//datos gráfica cerebros por usuario
+
+
 
 function indexLogin(_alert, _color, req, res) { 
     res.status(500).json({mensajeError:_alert, mensajeExito: ''});
